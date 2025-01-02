@@ -4,22 +4,40 @@ import Ticket from "./Ticket";
 const TicketList = () => {
   const orders = [
     {
-      id: 1,
-      orderItems: ["Pizza", "Pasta"],
-      tableNumber: "5",
-      color: "#FF5733",
-    },
-    {
       id: 2,
-      orderItems: ["Burger", "Fries"],
+      orderItems: [
+        { quantity: 2, name: "Burger", spiceLevel: "Medium" },
+        { quantity: 1, name: "Fries", spiceLevel: "Mild" },
+      ],
       tableNumber: "3",
       color: "#33FF57",
     },
     {
       id: 3,
-      orderItems: ["Sushi", "Miso Soup"],
+      orderItems: [
+        { quantity: 3, name: "Sushi", spiceLevel: "Hot" },
+        { quantity: 1, name: "Miso Soup", spiceLevel: "Medium" },
+      ],
       tableNumber: "8",
       color: "#3357FF",
+    },
+    {
+      id: 3,
+      orderItems: [
+        { quantity: 3, name: "Sushi", spiceLevel: "Hot" },
+        { quantity: 1, name: "Miso Soup", spiceLevel: "Medium" },
+      ],
+      tableNumber: "8",
+      color: "#3357FF",
+    },
+    {
+      id: 2,
+      orderItems: [
+        { quantity: 2, name: "Burger", spiceLevel: "Medium" },
+        { quantity: 1, name: "Fries", spiceLevel: "Mild" },
+      ],
+      tableNumber: "3",
+      color: "#33FF57",
     },
   ];
 
