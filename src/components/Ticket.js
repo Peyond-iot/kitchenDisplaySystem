@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const Ticket = ({ id, orderItems, tableNumber, color, onFinish }) => {
   // Handle ticket completion (optional functionality)
@@ -6,6 +6,18 @@ const Ticket = ({ id, orderItems, tableNumber, color, onFinish }) => {
     if (onFinish) {
       onFinish(id); // Call the provided onFinish function
     }
+  };
+
+  const [buttonState, setButtonState] = useState({
+    label: "Start",
+    color: "bg-green-500 hover:bg-green-400",
+  });
+
+  const handleClick = () => {
+    setButtonState({
+      label: "Preparing",
+      color: "bg-yellow-500 hover:bg-yellow-400",
+    });
   };
 
   return (
@@ -56,12 +68,15 @@ const Ticket = ({ id, orderItems, tableNumber, color, onFinish }) => {
       {/* Buttons */}
       <div className="mt-4 flex justify-end gap-2">
         <button
-          className="w-1/2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-400 focus:outline-none"
+          className={`w-1/2 px-4 py-2 text-white rounded-lg focus:outline-none ${buttonState.color}`}
+          onClick={handleClick}
+        >
+          {buttonState.label}
+        </button>
+        <button
+          className="w-1/2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-400 focus:outline-none"
           onClick={handleFinish}
         >
-          Start
-        </button>
-        <button className="w-1/2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-400 focus:outline-none">
           Finish
         </button>
       </div>
