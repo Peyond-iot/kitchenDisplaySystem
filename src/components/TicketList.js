@@ -10,7 +10,6 @@ const TicketList = () => {
         { quantity: 1, name: "Fries", spiceLevel: "Mild" },
       ],
       tableNumber: "3",
-      color: "#33FF57",
     },
     {
       id: 3,
@@ -19,7 +18,6 @@ const TicketList = () => {
         { quantity: 1, name: "Miso Soup", spiceLevel: "Medium" },
       ],
       tableNumber: "8",
-      color: "#3357FF",
     },
     {
       id: 3,
@@ -28,7 +26,6 @@ const TicketList = () => {
         { quantity: 1, name: "Miso Soup", spiceLevel: "Medium" },
       ],
       tableNumber: "8",
-      color: "#3357FF",
     },
     {
       id: 2,
@@ -37,7 +34,14 @@ const TicketList = () => {
         { quantity: 1, name: "Fries", spiceLevel: "Mild" },
       ],
       tableNumber: "3",
-      color: "#33FF57",
+    },
+    {
+      id: 10,
+      orderItems: [
+        { quantity: 2, name: "Burger", spiceLevel: "Medium" },
+        { quantity: 1, name: "Fries", spiceLevel: "Mild" },
+      ],
+      tableNumber: "3",
     },
   ];
 

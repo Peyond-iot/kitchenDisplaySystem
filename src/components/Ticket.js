@@ -1,6 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-const Ticket = ({ id, orderItems, tableNumber, color, onFinish }) => {
+const Ticket = ({ id, orderItems, tableNumber, onFinish }) => {
+  // Generate random color when the component mounts
+  const getRandomColor = () => {
+    const letters = "0123456789ABCDEF";
+    let color = "#";
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  };
+
+  // State for random color
+  const [color, setColor] = useState("");
+
+  // Set the random color when the component mounts
+  useEffect(() => {
+    setColor(getRandomColor());
+  }, []);
+
   // Handle ticket completion (optional functionality)
   const handleFinish = () => {
     if (onFinish) {
