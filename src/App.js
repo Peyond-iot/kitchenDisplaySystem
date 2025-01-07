@@ -1,16 +1,25 @@
 // src/App.js
 import React from "react";
 import TicketList from "./components/TicketList";
-
+import VerticalTab from "./components/VerticalTab";
+import HorizontalTab from "./components/HorizontalTab";
 const App = () => {
   return (
-    <div className="min-h-screen bg-gray-100">
-      <header className="bg-blue-500 text-white text-center py-4">
-        <h1 className="text-2xl font-bold">Kitchen Display System</h1>
-      </header>
-      <main className="p-4">
-        {/* Render the TicketList component */}
-        <TicketList />
+    <div className="min-h-screen bg-gray-100 flex flex-col">
+      {/* Horizontal Tab */}
+      <div className="bg-gray-200  shadow-lg p-0 ">
+        <HorizontalTab />
+      </div>
+
+      <main className="flex flex-1 p-0">
+        {/* Vertical Tab Section with subtle background and icons */}
+
+        <VerticalTab />
+
+        {/* Content Section */}
+        <div className="flex-1  bg-gray-100 shadow-lg ">
+          <TicketList />
+        </div>
       </main>
     </div>
   );

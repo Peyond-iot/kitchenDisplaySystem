@@ -33,21 +33,6 @@ const TicketList = () => {
       socket.off("newOrderCreated");
     };
   }, []); // Empty dependency array means this effect runs once when the component mounts
-  // console.log(orderss[0]._id);
-  //console.log(orderss[0].orderItems.quantity);
-  //console.log(orderss[0].orderItems.name);
-  //console.log(orderss[0].orderItems.spiceLevel);
-  //console.log(orderss[0].tableNumber);
-  //const orders = [
-  //  {
-  //   id: 10,
-  //    orderItems: [
-  //      { quantity: 2, name: "Burger", spiceLevel: "Medium" },
-  //      { quantity: 1, name: "Fries", spiceLevel: "Mild" },
-  //    ],
-  //    tableNumber: "3",
-  //  },
-  // ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
