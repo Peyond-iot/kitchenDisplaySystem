@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const Ticket = ({ id, orderItems, tableNumber, onFinish }) => {
+const Ticket = ({ id, orderItems, tableNumber, status, onFinish }) => {
   // Generate random color when the component mounts
   const getRandomColor = () => {
     const letters = "0123456789ABCDEF";
@@ -19,23 +19,23 @@ const Ticket = ({ id, orderItems, tableNumber, onFinish }) => {
     setColor(getRandomColor());
   }, []);
 
-  // Handle ticket completion (optional functionality)
-  const handleFinish = () => {
-    if (onFinish) {
-      onFinish(id); // Call the provided onFinish function
-    }
-  };
-
-  const [buttonState, setButtonState] = useState({
-    label: "Start",
-    color: "bg-green-500 hover:bg-green-400",
+  const [finishButtonState, setFinishButtonState] = useState({
+    color: "bg-gray-500 hover:bg-gray-400", // Default color for pending
   });
 
-  const handleClick = () => {
-    setButtonState({
-      label: "Preparing",
-      color: "bg-yellow-500 hover:bg-yellow-400",
-    });
+  // Handle finish button click (Finish => Completed)
+  const handleFinishClick = () => {
+    // Change status on button click
+    if (status === "pending") {
+      setFinishButtonState({ color: "bg-yellow-500 hover:bg-yellow-400" });
+    } else if (status === "in-preparation") {
+      setFinishButtonState({ color: "bg-green-500 hover:bg-green-400" });
+    }
+
+    if (onFinish) {
+      onFinish(id); // Call the onFinish function (to update the backend or do other tasks)
+      console.log(id);
+    }
   };
 
   return (
@@ -84,18 +84,12 @@ const Ticket = ({ id, orderItems, tableNumber, onFinish }) => {
       </div>
 
       {/* Buttons */}
-      <div className="mt-4 flex justify-end gap-2">
+      <div className="mt-4 flex  gap-4">
         <button
-          className={`w-1/2 px-4 py-2 text-white rounded-lg focus:outline-none ${buttonState.color}`}
-          onClick={handleClick}
+          className={`w-full px-4 py-2  text-white rounded-lg hover:bg-blue-400 focus:outline-none ${finishButtonState.color}`}
+          onClick={handleFinishClick}
         >
-          {buttonState.label}
-        </button>
-        <button
-          className="w-1/2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-400 focus:outline-none"
-          onClick={handleFinish}
-        >
-          Finish
+          {status}
         </button>
       </div>
     </div>

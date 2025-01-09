@@ -34,6 +34,58 @@ const TicketList = () => {
     };
   }, []); // Empty dependency array means this effect runs once when the component mounts
 
+  // Function to handle finish and remove completed ticket
+  const handleFinish = (ticketId) => {
+    // Get the current ticket status
+    const order = orders.find((order) => order._id === ticketId);
+
+    // Determine the new status based on the current status
+    let newStatus;
+    switch (order.status) {
+      case "pending":
+        newStatus = "in-preparation";
+        break;
+      case "in-preparation":
+        newStatus = "completed";
+        break;
+      case "completed":
+        newStatus = "completed"; // Status stays completed
+        break;
+      default:
+        newStatus = "pending";
+    }
+
+    // Update the status in the backend
+    fetch(`https://backend-nwcq.onrender.com/api/orders/${ticketId}`, {
+      method: "PUT",
+      body: JSON.stringify({ status: newStatus }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then(() => {
+        // Update status locally in the state
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order._id === ticketId ? { ...order, status: newStatus } : order
+          )
+        );
+
+        // If the status is "completed", remove the ticket after 1 second
+        if (newStatus === "completed") {
+          setTimeout(() => {
+            setOrders((prevOrders) =>
+              prevOrders.filter((ticket) => ticket._id !== ticketId)
+            );
+          }, 1000);
+        }
+      })
+      .catch((error) => {
+        console.error("Error updating ticket status:", error);
+      });
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
       {orders.length > 0 ? (
@@ -43,6 +95,8 @@ const TicketList = () => {
             id={order._id}
             orderItems={order.orderItems}
             tableNumber={order.tableNumber}
+            status={order.status}
+            onFinish={handleFinish}
           />
         ))
       ) : (
