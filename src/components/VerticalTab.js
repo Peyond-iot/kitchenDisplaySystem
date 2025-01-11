@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 
-const VerticalTab = () => {
+const VerticalTab = ({ onTabChange }) => {
   const [activeTab, setActiveTab] = useState("Active");
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
+    onTabChange(tab);
   };
 
   return (

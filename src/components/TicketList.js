@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from "react";
 import Ticket from "./Ticket";
+import VerticalTab from "./VerticalTab";
 import socket from "../socket"; // Import the socket instance
 
 const TicketList = () => {
-  //State to hold the orders
-  const [orders, setOrders] = useState([]);
+  // States to hold ongoing and completed orders
+  const [ongoingOrders, setOngoingOrders] = useState([]);
+  const [completedOrders, setCompletedOrders] = useState([]);
+  const [activeTab, setActiveTab] = useState("Active");
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
 
   // Fetch orders from the backend when the component mounts
   useEffect(() => {
@@ -14,7 +21,13 @@ const TicketList = () => {
           "https://backend-nwcq.onrender.com/api/orders"
         ); // Backend API endpoint
         const data = await response.json();
-        setOrders(data); // Set fetched orders in state
+
+        // Separate ongoing and completed orders
+        const ongoing = data.filter((order) => order.status !== "completed");
+        const completed = data.filter((order) => order.status === "completed");
+
+        setOngoingOrders(ongoing);
+        setCompletedOrders(completed);
       } catch (error) {
         console.error("Error fetching orders:", error);
       }
@@ -25,21 +38,24 @@ const TicketList = () => {
     // Listen for new order creation from the server
     socket.on("newOrderCreated", (newOrder) => {
       console.log("New order created:", newOrder);
-      setOrders((prevOrders) => [...prevOrders, newOrder]); // Add the new order to the state
+
+      // Add the new order to ongoing orders
+      setOngoingOrders((prevOrders) => [...prevOrders, newOrder]);
     });
 
-    // Clean up the socket listener when the component unmounts
     return () => {
+      // Clean up the socket listener when the component unmounts
       socket.off("newOrderCreated");
     };
-  }, []); // Empty dependency array means this effect runs once when the component mounts
+  }, []);
 
-  // Function to handle finish and remove completed ticket
+  // Function to handle finish and update the respective states
   const handleFinish = (ticketId) => {
-    // Get the current ticket status
-    const order = orders.find((order) => order._id === ticketId);
+    // Find the order and determine the new status
+    const order = ongoingOrders.find((order) => order._id === ticketId);
 
-    // Determine the new status based on the current status
+    if (!order) return;
+
     let newStatus;
     switch (order.status) {
       case "pending":
@@ -49,8 +65,7 @@ const TicketList = () => {
         newStatus = "completed";
         break;
       case "completed":
-        newStatus = "completed"; // Status stays completed
-        break;
+        return; // Already completed, no action needed
       default:
         newStatus = "pending";
     }
@@ -65,20 +80,23 @@ const TicketList = () => {
     })
       .then((response) => response.json())
       .then(() => {
-        // Update status locally in the state
-        setOrders((prevOrders) =>
-          prevOrders.map((order) =>
-            order._id === ticketId ? { ...order, status: newStatus } : order
-          )
-        );
-
-        // If the status is "completed", remove the ticket after 1 second
+        // Update the state based on the new status
         if (newStatus === "completed") {
-          setTimeout(() => {
-            setOrders((prevOrders) =>
-              prevOrders.filter((ticket) => ticket._id !== ticketId)
-            );
-          }, 1000);
+          // Move to completed orders
+          setOngoingOrders((prevOrders) =>
+            prevOrders.filter((order) => order._id !== ticketId)
+          );
+          setCompletedOrders((prevCompletedOrders) => [
+            ...prevCompletedOrders,
+            { ...order, status: newStatus },
+          ]);
+        } else {
+          // Update ongoing orders with the new status
+          setOngoingOrders((prevOrders) =>
+            prevOrders.map((order) =>
+              order._id === ticketId ? { ...order, status: newStatus } : order
+            )
+          );
         }
       })
       .catch((error) => {
@@ -87,21 +105,45 @@ const TicketList = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-      {orders.length > 0 ? (
-        orders.map((order) => (
-          <Ticket
-            key={order._id}
-            id={order._id}
-            orderItems={order.orderItems}
-            tableNumber={order.tableNumber}
-            status={order.status}
-            onFinish={handleFinish}
-          />
-        ))
-      ) : (
-        <p>No orders yet.</p> // If no orders, show a message
-      )}
+    <div>
+      <main className="flex flex-1 p-0">
+        <VerticalTab onTabChange={handleTabChange} />
+        <div className="w-full  bg-gray-100 shadow-lg ">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+            {activeTab === "Active" ? (
+              ongoingOrders.length > 0 ? (
+                ongoingOrders.map((order) => (
+                  <Ticket
+                    key={order._id}
+                    id={order._id}
+                    orderItems={order.orderItems}
+                    tableNumber={order.tableNumber}
+                    status={order.status}
+                    onFinish={handleFinish}
+                  />
+                ))
+              ) : (
+                <p>No ongoing orders yet.</p> // If no ongoing orders, show a message
+              )
+            ) : activeTab === "Completed" ? (
+              completedOrders.length > 0 ? (
+                completedOrders.map((order) => (
+                  <Ticket
+                    key={order._id}
+                    id={order._id}
+                    orderItems={order.orderItems}
+                    tableNumber={order.tableNumber}
+                    status={order.status}
+                    onFinish={handleFinish}
+                  />
+                ))
+              ) : (
+                <p>No completed orders yet.</p> // If no completed orders, show a message
+              )
+            ) : null}
+          </div>
+        </div>
+      </main>
     </div>
   );
 };
