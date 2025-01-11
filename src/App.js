@@ -1,7 +1,6 @@
 // src/App.js
 import React from "react";
 import TicketList from "./components/TicketList";
-import VerticalTab from "./components/VerticalTab";
 import HorizontalTab from "./components/HorizontalTab";
 const App = () => {
   return (
