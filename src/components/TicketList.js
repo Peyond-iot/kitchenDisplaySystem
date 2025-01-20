@@ -23,8 +23,12 @@ const TicketList = () => {
         const data = await response.json();
 
         // Separate ongoing and completed orders
-        const ongoing = data.filter((order) => order.status !== "completed");
-        const completed = data.filter((order) => order.status === "completed");
+        const ongoing = data.filter(
+          (order) => order.ticketStatus !== "completed"
+        );
+        const completed = data.filter(
+          (order) => order.ticketStatus === "completed"
+        );
 
         setOngoingOrders(ongoing);
         setCompletedOrders(completed);
@@ -57,7 +61,7 @@ const TicketList = () => {
     if (!order) return;
 
     let newStatus;
-    switch (order.status) {
+    switch (order.ticketStatus) {
       case "pending":
         newStatus = "in-preparation";
         break;
@@ -69,11 +73,12 @@ const TicketList = () => {
       default:
         newStatus = "pending";
     }
+    console.log(newStatus);
 
     // Update the status in the backend
     fetch(`https://backend-nwcq.onrender.com/api/orders/${ticketId}`, {
       method: "PUT",
-      body: JSON.stringify({ status: newStatus }),
+      body: JSON.stringify({ ticketStatus: newStatus }),
       headers: {
         "Content-Type": "application/json",
       },
@@ -82,19 +87,32 @@ const TicketList = () => {
       .then(() => {
         // Update the state based on the new status
         if (newStatus === "completed") {
-          // Move to completed orders
+          // First update the status in ongoing orders
           setOngoingOrders((prevOrders) =>
-            prevOrders.filter((order) => order._id !== ticketId)
+            prevOrders.map((order) =>
+              order._id === ticketId
+                ? { ...order, ticketStatus: newStatus }
+                : order
+            )
           );
-          setCompletedOrders((prevCompletedOrders) => [
-            ...prevCompletedOrders,
-            { ...order, status: newStatus },
-          ]);
+
+          // After 5 seconds, move to completed orders
+          setTimeout(() => {
+            setOngoingOrders((prevOrders) =>
+              prevOrders.filter((order) => order._id !== ticketId)
+            );
+            setCompletedOrders((prevCompletedOrders) => [
+              ...prevCompletedOrders,
+              { ...order, ticketStatus: newStatus },
+            ]);
+          }, 5000); // 5000 milliseconds = 5 seconds
         } else {
           // Update ongoing orders with the new status
           setOngoingOrders((prevOrders) =>
             prevOrders.map((order) =>
-              order._id === ticketId ? { ...order, status: newStatus } : order
+              order._id === ticketId
+                ? { ...order, ticketStatus: newStatus }
+                : order
             )
           );
         }
@@ -105,10 +123,10 @@ const TicketList = () => {
   };
 
   return (
-    <div>
-      <main className="flex flex-1 p-0">
+    <div className="h-screen">
+      <main className="flex flex-1 p-0 h-full">
         <VerticalTab onTabChange={handleTabChange} />
-        <div className="w-full  bg-gray-100 shadow-lg ">
+        <div className="w-full bg-gray-100 shadow-lg">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
             {activeTab === "Active" ? (
               ongoingOrders.length > 0 ? (
@@ -118,6 +136,7 @@ const TicketList = () => {
                     id={order._id}
                     orderItems={order.orderItems}
                     tableNumber={order.tableNumber}
+                    ticketStatus={order.ticketStatus}
                     status={order.status}
                     onFinish={handleFinish}
                   />
@@ -133,7 +152,7 @@ const TicketList = () => {
                     id={order._id}
                     orderItems={order.orderItems}
                     tableNumber={order.tableNumber}
-                    status={order.status}
+                    ticketStatus={order.ticketStatus}
                     onFinish={handleFinish}
                   />
                 ))
